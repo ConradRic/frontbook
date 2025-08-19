@@ -1,7 +1,37 @@
-import { Ionicons } from "@expo/vector-icons";
+
 import { Text, TextInput, TouchableOpacity, View, StyleSheet, ScrollView } from "react-native";
+import PostItem from "./components/post/Post";
+import { useEffect, useState } from "react";
+
+async function fetchPosts() {
+    try {
+        const resp = await fetch("http://10.92.199.6:3000/posts");
+        const data = await resp.json()
+        return data
+        
+    } catch (error) {
+        console.log("Erro ao buscar os posts")
+        
+    }
+}
+
+
 
     export default function Timeline () {
+        const [posts, setPosts] = useState([])
+
+        // Carrega os posts na hora que o componente é carregado
+        useEffect(() => {
+            async function loadPost() {
+                const apiPost = await fetchPosts()
+                setPosts(apiPost)
+                
+            } 
+
+            loadPost()
+        }, []) // é chamado apenas quando a pagina carrega 
+
+
         return(
             <View style={styles.container}>
                 <View style={styles.newPostContainer}>
@@ -12,38 +42,11 @@ import { Text, TextInput, TouchableOpacity, View, StyleSheet, ScrollView } from 
                 </View>
 
                 <ScrollView>
-                    <View style={styles.postContainer}>
-                        <View style={styles.postHeader}>
-                            <View style={styles.avatar}>
-                                <Ionicons name="person" size={20} color= {"#7777777"}/>
-                            </View>
-
-                            <View style={styles.postInfo}>
-                                <Text style={styles.username}>Maria_dev</Text>
-                                <Text style={styles.timestamp}>2h atrás</Text>
-                            </View>
-
-                            </View>
-
-                            <Text style={styles.posContent}>Acabei de criar minha primeira página HTML 😁</Text>
-
-                            <View style={styles.postActions}>
-                                <TouchableOpacity style={styles.actionButton}>
-                                    <Ionicons name="heart-outline" size={20}></Ionicons>
-                                    <Text style={styles.actionText}>20</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.actionButton}>
-                                    <Ionicons name="chatbubble-outline" size={20}></Ionicons>
-                                    <Text style={styles.actionText}>9</Text>
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={styles.actionButton}>
-                                    <Ionicons name="share-outline" size={20}></Ionicons>
-                                </TouchableOpacity>
-                            </View>
-                    </View>
-
+                    {
+                        posts.map((post) => (
+                            <PostItem post={post}/>
+                        ))
+                    }
                 </ScrollView>
             </View>
         )
